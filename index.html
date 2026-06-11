@@ -9,203 +9,258 @@
 
 <body>
   <main class="app">
-    <section class="hero">
-      <p class="eyebrow">Smart Budgeting</p>
-      <h1>BudgetMate</h1>
-      <p>Track expenses, budgets, savings, recurring bills, purchase decisions, and monthly insights.</p>
+
+    <!-- HOME TAB -->
+    <section class="screen active" id="dashboard">
+      <section class="hero">
+        <p class="eyebrow">Smart Budgeting</p>
+        <h1>BudgetMate</h1>
+        <p>Track expenses, budgets, savings, recurring bills, purchase decisions, and monthly insights.</p>
+      </section>
+
+      <section class="month-bar">
+        <button id="prevMonthBtn" type="button">←</button>
+        <h3 id="monthDisplay">Month</h3>
+        <button id="nextMonthBtn" type="button">→</button>
+      </section>
+
+      <section class="summary-grid">
+        <div class="card">
+          <span>Income</span>
+          <h2 id="incomeDisplay">B$0.00</h2>
+        </div>
+
+        <div class="card">
+          <span>Spent</span>
+          <h2 id="spentDisplay">B$0.00</h2>
+        </div>
+
+        <div class="card balance-card">
+          <span>Remaining</span>
+          <h2 id="remainingDisplay">B$0.00</h2>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Monthly Progress</h3>
+        <div class="progress-track">
+          <div id="monthlyProgressBar" class="progress-fill"></div>
+        </div>
+        <p id="monthlyProgressText" class="muted">0% of income used</p>
+        <div id="warningBox" class="warning-box hidden"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Smart Insights</h3>
+        <div id="insightList" class="insight-list"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Should I Buy This?</h3>
+
+        <form id="buyForm">
+          <input type="text" id="buyNameInput" placeholder="Item name e.g. Used gearbox" required />
+          <input type="number" id="buyPriceInput" placeholder="Price e.g. 1200" required />
+
+          <select id="buyNeedInput" required>
+            <option value="">Need score</option>
+            <option value="1">1 - Not needed</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5 - Essential</option>
+          </select>
+
+          <select id="buyUrgencyInput" required>
+            <option value="">Urgency</option>
+            <option value="1">1 - Can wait</option>
+            <option value="2">2</option>
+            <option value="3">3 - Soon</option>
+            <option value="4">4</option>
+            <option value="5">5 - Urgent</option>
+          </select>
+
+          <button type="submit">Calculate Decision</button>
+        </form>
+
+        <div id="buyResult" class="decision-box"></div>
+      </section>
     </section>
 
-    <section class="month-bar">
-      <button id="prevMonthBtn" type="button">←</button>
-      <h3 id="monthDisplay">Month</h3>
-      <button id="nextMonthBtn" type="button">→</button>
+    <!-- ADD TAB -->
+    <section class="screen" id="add">
+      <section class="hero">
+        <p class="eyebrow">Add Entry</p>
+        <h1>Add</h1>
+        <p>Set your income and record new expenses.</p>
+      </section>
+
+      <section class="panel">
+        <h3>Set Monthly Income</h3>
+        <div class="form-row">
+          <input type="number" id="incomeInput" placeholder="Enter income e.g. 800" />
+          <button id="saveIncomeBtn" type="button">Save</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Add Expense</h3>
+
+        <form id="expenseForm">
+          <input type="number" id="amountInput" placeholder="Amount e.g. 5.50" required />
+
+          <select id="categoryInput" required>
+            <option value="">Select category</option>
+            <option>Food</option>
+            <option>Fuel</option>
+            <option>Car</option>
+            <option>Shopping</option>
+            <option>Subscriptions</option>
+            <option>Entertainment</option>
+            <option>Savings</option>
+            <option>Other</option>
+          </select>
+
+          <input type="text" id="noteInput" placeholder="Note e.g. Lunch" />
+
+          <select id="worthInput">
+            <option value="neutral">Was it worth it?</option>
+            <option value="worth">Worth it</option>
+            <option value="regret">Regret</option>
+          </select>
+
+          <label class="file-box">
+            <span>Add receipt photo</span>
+            <input type="file" id="receiptInput" accept="image/*" />
+          </label>
+
+          <img id="receiptPreview" class="receipt-preview hidden" alt="Receipt preview" />
+
+          <button type="submit">Add Expense</button>
+        </form>
+      </section>
     </section>
 
-    <section class="summary-grid">
-      <div class="card">
-        <span>Income</span>
-        <h2 id="incomeDisplay">B$0.00</h2>
-      </div>
-      <div class="card">
-        <span>Spent</span>
-        <h2 id="spentDisplay">B$0.00</h2>
-      </div>
-      <div class="card balance-card">
-        <span>Remaining</span>
-        <h2 id="remainingDisplay">B$0.00</h2>
-      </div>
+    <!-- BUDGET TAB -->
+    <section class="screen" id="budget">
+      <section class="hero">
+        <p class="eyebrow">Budget Control</p>
+        <h1>Budget</h1>
+        <p>Set category limits and view your spending breakdown.</p>
+      </section>
+
+      <section class="panel">
+        <h3>Category Budgets</h3>
+
+        <form id="budgetForm">
+          <select id="budgetCategoryInput" required>
+            <option value="">Select category</option>
+            <option>Food</option>
+            <option>Fuel</option>
+            <option>Car</option>
+            <option>Shopping</option>
+            <option>Subscriptions</option>
+            <option>Entertainment</option>
+            <option>Savings</option>
+            <option>Other</option>
+          </select>
+
+          <input type="number" id="budgetAmountInput" placeholder="Budget amount e.g. 200" required />
+          <button type="submit">Set Budget</button>
+        </form>
+
+        <div id="categoryBudgetList" class="category-budget-list"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Spending Breakdown</h3>
+        <div id="breakdownList" class="breakdown-list"></div>
+      </section>
     </section>
 
-    <section class="panel">
-      <h3>Monthly Progress</h3>
-      <div class="progress-track">
-        <div id="monthlyProgressBar" class="progress-fill"></div>
-      </div>
-      <p id="monthlyProgressText" class="muted">0% of income used</p>
-      <div id="warningBox" class="warning-box hidden"></div>
+    <!-- GOALS TAB -->
+    <section class="screen" id="goals">
+      <section class="hero">
+        <p class="eyebrow">Savings & Bills</p>
+        <h1>Goals</h1>
+        <p>Track your savings goal and recurring monthly expenses.</p>
+      </section>
+
+      <section class="panel">
+        <h3>Savings Goal</h3>
+
+        <form id="goalForm">
+          <input type="text" id="goalNameInput" placeholder="Goal name e.g. Emergency Fund" required />
+          <input type="number" id="goalTargetInput" placeholder="Target amount e.g. 1000" required />
+          <input type="number" id="goalSavedInput" placeholder="Currently saved e.g. 250" required />
+          <button type="submit">Save Goal</button>
+        </form>
+
+        <div id="goalBox" class="goal-box"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Recurring Expenses</h3>
+
+        <form id="recurringForm">
+          <input type="text" id="recurringNameInput" placeholder="Name e.g. Netflix" required />
+          <input type="number" id="recurringAmountInput" placeholder="Amount e.g. 12" required />
+
+          <select id="recurringCategoryInput" required>
+            <option value="">Select category</option>
+            <option>Food</option>
+            <option>Fuel</option>
+            <option>Car</option>
+            <option>Shopping</option>
+            <option>Subscriptions</option>
+            <option>Entertainment</option>
+            <option>Savings</option>
+            <option>Other</option>
+          </select>
+
+          <button type="submit">Add Recurring</button>
+        </form>
+
+        <button id="applyRecurringBtn" class="secondary-btn" type="button">
+          Apply Recurring to This Month
+        </button>
+
+        <div id="recurringList" class="recurring-list"></div>
+      </section>
     </section>
 
-    <section class="panel">
-      <h3>Set Monthly Income</h3>
-      <div class="form-row">
-        <input type="number" id="incomeInput" placeholder="Enter income e.g. 800" />
-        <button id="saveIncomeBtn" type="button">Save</button>
-      </div>
+    <!-- HISTORY TAB -->
+    <section class="screen" id="history">
+      <section class="hero">
+        <p class="eyebrow">Records</p>
+        <h1>History</h1>
+        <p>View past expenses and export your monthly report.</p>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <h3>Spending History</h3>
+          <button class="clear-btn" id="clearMonthBtn" type="button">Clear Month</button>
+        </div>
+
+        <div id="expenseList" class="expense-list"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Monthly Report</h3>
+        <button id="exportReportBtn" type="button">Export Smart Report</button>
+      </section>
     </section>
 
-    <section class="panel">
-      <h3>Add Expense</h3>
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <button class="tab-btn active" data-tab="dashboard" type="button">Home</button>
+      <button class="tab-btn" data-tab="add" type="button">Add</button>
+      <button class="tab-btn" data-tab="budget" type="button">Budget</button>
+      <button class="tab-btn" data-tab="goals" type="button">Goals</button>
+      <button class="tab-btn" data-tab="history" type="button">History</button>
+    </nav>
 
-      <form id="expenseForm">
-        <input type="number" id="amountInput" placeholder="Amount e.g. 5.50" required />
-
-        <select id="categoryInput" required>
-          <option value="">Select category</option>
-          <option>Food</option>
-          <option>Fuel</option>
-          <option>Car</option>
-          <option>Shopping</option>
-          <option>Subscriptions</option>
-          <option>Entertainment</option>
-          <option>Savings</option>
-          <option>Other</option>
-        </select>
-
-        <input type="text" id="noteInput" placeholder="Note e.g. Lunch" />
-
-        <select id="worthInput">
-          <option value="neutral">Was it worth it?</option>
-          <option value="worth">Worth it</option>
-          <option value="regret">Regret</option>
-        </select>
-
-        <label class="file-box">
-          <span>Add receipt photo</span>
-          <input type="file" id="receiptInput" accept="image/*" />
-        </label>
-
-        <img id="receiptPreview" class="receipt-preview hidden" alt="Receipt preview" />
-
-        <button type="submit">Add Expense</button>
-      </form>
-    </section>
-
-    <section class="panel">
-      <h3>Smart Insights</h3>
-      <div id="insightList" class="insight-list"></div>
-    </section>
-
-    <section class="panel">
-      <h3>Should I Buy This?</h3>
-
-      <form id="buyForm">
-        <input type="text" id="buyNameInput" placeholder="Item name e.g. Used gearbox" required />
-        <input type="number" id="buyPriceInput" placeholder="Price e.g. 1200" required />
-
-        <select id="buyNeedInput" required>
-          <option value="">Need score</option>
-          <option value="1">1 - Not needed</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5 - Essential</option>
-        </select>
-
-        <select id="buyUrgencyInput" required>
-          <option value="">Urgency</option>
-          <option value="1">1 - Can wait</option>
-          <option value="2">2</option>
-          <option value="3">3 - Soon</option>
-          <option value="4">4</option>
-          <option value="5">5 - Urgent</option>
-        </select>
-
-        <button type="submit">Calculate Decision</button>
-      </form>
-
-      <div id="buyResult" class="decision-box"></div>
-    </section>
-
-    <section class="panel">
-      <h3>Savings Goal</h3>
-
-      <form id="goalForm">
-        <input type="text" id="goalNameInput" placeholder="Goal name e.g. Emergency Fund" required />
-        <input type="number" id="goalTargetInput" placeholder="Target amount e.g. 1000" required />
-        <input type="number" id="goalSavedInput" placeholder="Currently saved e.g. 250" required />
-        <button type="submit">Save Goal</button>
-      </form>
-
-      <div id="goalBox" class="goal-box"></div>
-    </section>
-
-    <section class="panel">
-      <h3>Recurring Expenses</h3>
-
-      <form id="recurringForm">
-        <input type="text" id="recurringNameInput" placeholder="Name e.g. Netflix" required />
-        <input type="number" id="recurringAmountInput" placeholder="Amount e.g. 12" required />
-
-        <select id="recurringCategoryInput" required>
-          <option value="">Select category</option>
-          <option>Food</option>
-          <option>Fuel</option>
-          <option>Car</option>
-          <option>Shopping</option>
-          <option>Subscriptions</option>
-          <option>Entertainment</option>
-          <option>Savings</option>
-          <option>Other</option>
-        </select>
-
-        <button type="submit">Add Recurring</button>
-      </form>
-
-      <button id="applyRecurringBtn" class="secondary-btn" type="button">Apply Recurring to This Month</button>
-      <div id="recurringList" class="recurring-list"></div>
-    </section>
-
-    <section class="panel">
-      <h3>Category Budgets</h3>
-
-      <form id="budgetForm">
-        <select id="budgetCategoryInput" required>
-          <option value="">Select category</option>
-          <option>Food</option>
-          <option>Fuel</option>
-          <option>Car</option>
-          <option>Shopping</option>
-          <option>Subscriptions</option>
-          <option>Entertainment</option>
-          <option>Savings</option>
-          <option>Other</option>
-        </select>
-
-        <input type="number" id="budgetAmountInput" placeholder="Budget amount e.g. 200" required />
-        <button type="submit">Set Budget</button>
-      </form>
-
-      <div id="categoryBudgetList" class="category-budget-list"></div>
-    </section>
-
-    <section class="panel">
-      <h3>Spending Breakdown</h3>
-      <div id="breakdownList" class="breakdown-list"></div>
-    </section>
-
-    <section class="panel">
-      <div class="section-head">
-        <h3>Spending History</h3>
-        <button class="clear-btn" id="clearMonthBtn" type="button">Clear Month</button>
-      </div>
-
-      <div id="expenseList" class="expense-list"></div>
-    </section>
-
-    <section class="panel">
-      <h3>Monthly Report</h3>
-      <button id="exportReportBtn" type="button">Export Smart Report</button>
-    </section>
   </main>
 
   <script src="script.js"></script>

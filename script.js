@@ -4,6 +4,11 @@ document.addEventListener("DOMContentLoaded", () => {
     "Subscriptions", "Entertainment", "Savings", "Other"
   ];
 
+  const pieColors = [
+    "#35d07f", "#ffcc66", "#ff6b6b", "#5aa9ff",
+    "#c084fc", "#fb923c", "#2dd4bf", "#94a3b8"
+  ];
+
   let currentDate = new Date();
   let currentMonthKey = getMonthKey(currentDate);
 
@@ -20,7 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getMonthName(date) {
-    return date.toLocaleDateString("en-BN", { month: "long", year: "numeric" });
+    return date.toLocaleDateString("en-BN", {
+      month: "long",
+      year: "numeric"
+    });
   }
 
   function saveData() {
@@ -35,7 +43,28 @@ document.addEventListener("DOMContentLoaded", () => {
     return `B$${Number(value || 0).toFixed(2)}`;
   }
 
+  function getPreviousIncome() {
+    const keys = Object.keys(incomeData).sort();
+    const previousKeys = keys.filter((key) => key < currentMonthKey && Number(incomeData[key]) > 0);
+
+    if (previousKeys.length === 0) return 0;
+
+    return Number(incomeData[previousKeys[previousKeys.length - 1]]) || 0;
+  }
+
+  function autoCarryIncome() {
+    if (!incomeData[currentMonthKey]) {
+      const previousIncome = getPreviousIncome();
+
+      if (previousIncome > 0) {
+        incomeData[currentMonthKey] = previousIncome;
+        saveData();
+      }
+    }
+  }
+
   function getCurrentIncome() {
+    autoCarryIncome();
     return Number(incomeData[currentMonthKey]) || 0;
   }
 
@@ -53,17 +82,12 @@ document.addEventListener("DOMContentLoaded", () => {
       .reduce((sum, item) => sum + Number(item.amount), 0);
   }
 
-  function getBiggestExpense() {
-    const current = getCurrentExpenses();
-    if (current.length === 0) return null;
-    return current.reduce((biggest, item) => item.amount > biggest.amount ? item : biggest, current[0]);
-  }
-
   function getTopCategory() {
     let top = { category: "None", amount: 0 };
 
     categories.forEach((category) => {
       const spent = getCategorySpent(category);
+
       if (spent > top.amount) {
         top = { category, amount: spent };
       }
@@ -72,9 +96,23 @@ document.addEventListener("DOMContentLoaded", () => {
     return top;
   }
 
+  function getBiggestExpense() {
+    const currentExpenses = getCurrentExpenses();
+
+    if (currentExpenses.length === 0) return null;
+
+    return currentExpenses.reduce((biggest, item) => {
+      return Number(item.amount) > Number(biggest.amount) ? item : biggest;
+    }, currentExpenses[0]);
+  }
+
   function refreshApp() {
     updateMonthDisplay();
     updateDashboard();
+    renderHealthScore();
+    renderPieChart();
+    renderMonthlyTrend();
+    renderSavingsForecast();
     renderInsights();
     renderCategoryBudgets();
     renderBreakdown();
@@ -122,6 +160,213 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function renderHealthScore() {
+    const income = getCurrentIncome();
+    const spent = getTotalSpent();
+    const remaining = income - spent;
+    const expensesThisMonth = getCurrentExpenses();
+
+    const regretTotal = expensesThisMonth
+      .filter((expense) => expense.worth === "regret")
+      .reduce((sum, expense) => sum + Number(expense.amount), 0);
+
+    let score = 100;
+
+    if (income <= 0) {
+      score = 0;
+    } else {
+      const usageRate = spent / income;
+      const regretRate = regretTotal / income;
+
+      if (usageRate > 1) score -= 45;
+      else if (usageRate > 0.9) score -= 30;
+      else if (usageRate > 0.8) score -= 20;
+      else if (usageRate > 0.6) score -= 10;
+
+      if (remaining > 0) score += 5;
+
+      score -= Math.min(regretRate * 100, 20);
+
+      categories.forEach((category) => {
+        const budget = Number(categoryBudgets[category]) || 0;
+        const categorySpent = getCategorySpent(category);
+
+        if (budget > 0 && categorySpent > budget) {
+          score -= 5;
+        }
+      });
+    }
+
+    score = Math.max(0, Math.min(100, Math.round(score)));
+
+    const degrees = score * 3.6;
+
+    document.querySelector(".score-ring").style.background =
+      `conic-gradient(#35d07f ${degrees}deg, #1c2a3f ${degrees}deg)`;
+
+    $("healthScore").textContent = score;
+
+    if (score >= 85) {
+      $("healthMessage").textContent = "Excellent. Your spending looks very controlled.";
+    } else if (score >= 70) {
+      $("healthMessage").textContent = "Good. Your budget is healthy, but keep watching your top category.";
+    } else if (score >= 50) {
+      $("healthMessage").textContent = "Moderate. Try reducing non-essential spending this month.";
+    } else if (income <= 0) {
+      $("healthMessage").textContent = "Set your monthly income to calculate your score.";
+    } else {
+      $("healthMessage").textContent = "Weak. You may be overspending or exceeding category budgets.";
+    }
+  }
+
+  function renderPieChart() {
+    const totalSpent = getTotalSpent();
+    const pieChart = $("pieChart");
+    const pieLegend = $("pieLegend");
+
+    pieLegend.innerHTML = "";
+
+    if (totalSpent <= 0) {
+      pieChart.style.background = "#1c2a3f";
+      pieLegend.innerHTML = `<p class="empty">No expenses yet.</p>`;
+      return;
+    }
+
+    let start = 0;
+    const gradientParts = [];
+
+    categories.forEach((category, index) => {
+      const spent = getCategorySpent(category);
+
+      if (spent <= 0) return;
+
+      const percentage = (spent / totalSpent) * 100;
+      const end = start + percentage;
+      const color = pieColors[index];
+
+      gradientParts.push(`${color} ${start}% ${end}%`);
+
+      const item = document.createElement("div");
+      item.className = "legend-item";
+
+      item.innerHTML = `
+        <div class="legend-left">
+          <span class="legend-dot" style="background:${color}"></span>
+          <span>${category}</span>
+        </div>
+        <strong>${formatMoney(spent)}</strong>
+      `;
+
+      pieLegend.appendChild(item);
+
+      start = end;
+    });
+
+    pieChart.style.background = `conic-gradient(${gradientParts.join(", ")})`;
+  }
+
+  function getMonthKeysForTrend(count = 6) {
+    const keys = [];
+
+    for (let i = count - 1; i >= 0; i--) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      keys.push({
+        key: getMonthKey(date),
+        label: date.toLocaleDateString("en-BN", { month: "short" })
+      });
+    }
+
+    return keys;
+  }
+
+  function renderMonthlyTrend() {
+    const trendChart = $("trendChart");
+    const months = getMonthKeysForTrend(6);
+
+    const data = months.map((month) => {
+      const total = expenses
+        .filter((expense) => expense.monthKey === month.key)
+        .reduce((sum, expense) => sum + Number(expense.amount), 0);
+
+      return {
+        ...month,
+        total
+      };
+    });
+
+    const max = Math.max(...data.map((item) => item.total), 1);
+
+    trendChart.innerHTML = "";
+
+    data.forEach((item) => {
+      const width = (item.total / max) * 100;
+
+      const row = document.createElement("div");
+      row.className = "trend-row";
+
+      row.innerHTML = `
+        <span>${item.label}</span>
+        <div class="trend-bar">
+          <div class="trend-fill" style="width:${width}%"></div>
+        </div>
+        <strong>${formatMoney(item.total)}</strong>
+      `;
+
+      trendChart.appendChild(row);
+    });
+  }
+
+  function renderSavingsForecast() {
+    const box = $("forecastBox");
+    const income = getCurrentIncome();
+    const spent = getTotalSpent();
+    const monthlySaving = income - spent;
+
+    box.innerHTML = "";
+
+    if (!savingsGoal) {
+      box.innerHTML = `
+        <div class="forecast-card">
+          <strong>No goal yet</strong>
+          <p>Add a savings goal to forecast when you can reach it.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const remainingGoal = savingsGoal.target - savingsGoal.saved;
+
+    if (remainingGoal <= 0) {
+      box.innerHTML = `
+        <div class="forecast-card">
+          <strong>Goal completed</strong>
+          <p>You have already reached your ${savingsGoal.name} goal.</p>
+        </div>
+      `;
+      return;
+    }
+
+    if (monthlySaving <= 0) {
+      box.innerHTML = `
+        <div class="forecast-card">
+          <strong>No forecast available</strong>
+          <p>You are not saving this month. Reduce spending or increase income to reach your goal faster.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const monthsNeeded = Math.ceil(remainingGoal / monthlySaving);
+    const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + monthsNeeded, 1);
+
+    box.innerHTML = `
+      <div class="forecast-card">
+        <strong>${savingsGoal.name}</strong>
+        <p>At your current pace of ${formatMoney(monthlySaving)} saved per month, you may reach your goal in about ${monthsNeeded} month(s), around ${getMonthName(targetDate)}.</p>
+      </div>
+    `;
+  }
+
   function renderInsights() {
     const list = $("insightList");
     const income = getCurrentIncome();
@@ -151,7 +396,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (income > 0 && totalSpent < income * 0.5) {
       advice = "Your spending is controlled. Consider increasing savings if possible.";
     } else {
-      advice = "Your spending is still manageable. Keep monitoring the top category.";
+      advice = "Your spending is manageable. Keep monitoring the top category.";
     }
 
     list.innerHTML = `
@@ -219,6 +464,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     categories.forEach((category) => {
       const spent = getCategorySpent(category);
+
       if (spent <= 0) return;
 
       const card = document.createElement("div");
@@ -268,7 +514,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <span>${expense.category} • ${expense.date}</span>
           <div class="badge ${badgeClass}">${badgeText}</div>
           ${expense.receipt ? `<img class="receipt-thumb" src="${expense.receipt}" alt="Receipt" />` : ""}
-          <button class="delete-btn" data-id="${expense.id}" type="button">Delete</button>
+          <button class="delete-btn expense-delete" data-id="${expense.id}" type="button">Delete</button>
         </div>
         <div class="expense-amount">${formatMoney(expense.amount)}</div>
       `;
@@ -276,7 +522,7 @@ document.addEventListener("DOMContentLoaded", () => {
       $("expenseList").appendChild(item);
     });
 
-    document.querySelectorAll(".delete-btn").forEach((btn) => {
+    document.querySelectorAll(".expense-delete").forEach((btn) => {
       btn.addEventListener("click", () => {
         expenses = expenses.filter((expense) => expense.id !== btn.dataset.id);
         saveData();
@@ -360,6 +606,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   $("receiptInput").addEventListener("change", () => {
     const file = $("receiptInput").files[0];
+
     if (!file) return;
 
     const reader = new FileReader();
@@ -577,14 +824,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const topCategory = getTopCategory();
     const biggest = getBiggestExpense();
 
-    const regretTotal = getCurrentExpenses()
-      .filter((expense) => expense.worth === "regret")
-      .reduce((sum, expense) => sum + Number(expense.amount), 0);
-
-    const worthTotal = getCurrentExpenses()
-      .filter((expense) => expense.worth === "worth")
-      .reduce((sum, expense) => sum + Number(expense.amount), 0);
-
     const report = `
 BudgetMate Smart Monthly Report
 Month: ${getMonthName(currentDate)}
@@ -593,15 +832,14 @@ Income: ${formatMoney(getCurrentIncome())}
 Spent: ${formatMoney(getTotalSpent())}
 Remaining: ${formatMoney(getCurrentIncome() - getTotalSpent())}
 
+Health Score:
+${$("healthScore").textContent}/100
+
 Top Category:
 ${topCategory.category}: ${formatMoney(topCategory.amount)}
 
 Biggest Purchase:
 ${biggest ? `${biggest.note || biggest.category}: ${formatMoney(biggest.amount)}` : "None"}
-
-Worth It vs Regret:
-Worth it: ${formatMoney(worthTotal)}
-Regret: ${formatMoney(regretTotal)}
 
 Breakdown:
 ${categories.map((cat) => `${cat}: ${formatMoney(getCategorySpent(cat))}`).join("\n")}
@@ -621,24 +859,27 @@ ${getCurrentExpenses().map((e) => `${e.date} - ${e.category} - ${formatMoney(e.a
     URL.revokeObjectURL(url);
   });
 
-const tabButtons = document.querySelectorAll(".tab-btn");
-const screens = document.querySelectorAll(".screen");
+  document.querySelectorAll(".tab-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      const targetTab = button.dataset.tab;
 
-tabButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const targetTab = button.dataset.tab;
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.classList.remove("active");
+      });
 
-    tabButtons.forEach((btn) => btn.classList.remove("active"));
-    screens.forEach((screen) => screen.classList.remove("active"));
+      document.querySelectorAll(".screen").forEach((screen) => {
+        screen.classList.remove("active");
+      });
 
-    button.classList.add("active");
-    document.getElementById(targetTab).classList.add("active");
+      button.classList.add("active");
+      document.getElementById(targetTab).classList.add("active");
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
     });
   });
-});
+
   refreshApp();
 });

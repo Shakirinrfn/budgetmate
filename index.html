@@ -10,12 +10,11 @@
 <body>
   <main class="app">
 
-
     <section class="screen active" id="dashboard">
       <section class="hero">
         <p class="eyebrow">Smart Budgeting</p>
         <h1>BudgetMate</h1>
-        <p>Track expenses, budgets, savings, recurring bills, purchase decisions, and monthly insights.</p>
+        <p>Track expenses, budgets, savings, purchase decisions, and monthly insights.</p>
       </section>
 
       <section class="month-bar">
@@ -42,12 +41,39 @@
       </section>
 
       <section class="panel">
+        <h3>Spending Health Score</h3>
+        <div class="score-ring">
+          <div>
+            <strong id="healthScore">0</strong>
+            <span>/100</span>
+          </div>
+        </div>
+        <p id="healthMessage" class="muted">Add income and expenses to calculate your score.</p>
+      </section>
+
+      <section class="panel">
         <h3>Monthly Progress</h3>
         <div class="progress-track">
           <div id="monthlyProgressBar" class="progress-fill"></div>
         </div>
         <p id="monthlyProgressText" class="muted">0% of income used</p>
         <div id="warningBox" class="warning-box hidden"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Spending Pie Chart</h3>
+        <div id="pieChart" class="pie-chart"></div>
+        <div id="pieLegend" class="pie-legend"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Monthly Trend</h3>
+        <div id="trendChart" class="trend-chart"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Savings Forecast</h3>
+        <div id="forecastBox" class="forecast-box"></div>
       </section>
 
       <section class="panel">
@@ -59,7 +85,7 @@
         <h3>Should I Buy This?</h3>
 
         <form id="buyForm">
-          <input type="text" id="buyNameInput" placeholder="Item name e.g. iphone 18 Pro" required />
+          <input type="text" id="buyNameInput" placeholder="Item name e.g. Used gearbox" required />
           <input type="number" id="buyPriceInput" placeholder="Price e.g. 1200" required />
 
           <select id="buyNeedInput" required>
@@ -87,12 +113,11 @@
       </section>
     </section>
 
-
     <section class="screen" id="add">
       <section class="hero">
         <p class="eyebrow">Add Entry</p>
         <h1>Add</h1>
-        <p>Set your income and record new expenses.</p>
+        <p>Set your income and record expenses.</p>
       </section>
 
       <section class="panel">
@@ -101,6 +126,7 @@
           <input type="number" id="incomeInput" placeholder="Enter income e.g. 800" />
           <button id="saveIncomeBtn" type="button">Save</button>
         </div>
+        <p class="muted">If a new month has no income yet, BudgetMate auto-carries your latest income forward.</p>
       </section>
 
       <section class="panel">
@@ -141,12 +167,11 @@
       </section>
     </section>
 
-
     <section class="screen" id="budget">
       <section class="hero">
         <p class="eyebrow">Budget Control</p>
         <h1>Budget</h1>
-        <p>Set category limits and view your spending breakdown.</p>
+        <p>Set category limits. These carry forward automatically every month.</p>
       </section>
 
       <section class="panel">
@@ -178,12 +203,11 @@
       </section>
     </section>
 
-    <!-- GOALS TAB -->
     <section class="screen" id="goals">
       <section class="hero">
         <p class="eyebrow">Savings & Bills</p>
         <h1>Goals</h1>
-        <p>Track your savings goal and recurring monthly expenses.</p>
+        <p>Track savings and recurring monthly expenses.</p>
       </section>
 
       <section class="panel">
@@ -229,12 +253,11 @@
       </section>
     </section>
 
-
     <section class="screen" id="history">
       <section class="hero">
         <p class="eyebrow">Records</p>
         <h1>History</h1>
-        <p>View past expenses and export your monthly report.</p>
+        <p>View expenses and export your monthly report.</p>
       </section>
 
       <section class="panel">
@@ -251,7 +274,6 @@
         <button id="exportReportBtn" type="button">Export Smart Report</button>
       </section>
     </section>
-
 
     <nav class="bottom-nav">
       <button class="tab-btn active" data-tab="dashboard" type="button">Home</button>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BudgetMate</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <main class="app">
+    <section class="hero">
+      <p class="eyebrow">Personal Budget</p>
+      <h1>BudgetMate</h1>
+      <p>Track your income, expenses, and remaining balance.</p>
+    </section>
+
+    <section class="summary-grid">
+      <div class="card">
+        <span>Income</span>
+        <h2 id="incomeDisplay">B$0.00</h2>
+      </div>
+
+      <div class="card">
+        <span>Spent</span>
+        <h2 id="spentDisplay">B$0.00</h2>
+      </div>
+
+      <div class="card balance-card">
+        <span>Remaining</span>
+        <h2 id="remainingDisplay">B$0.00</h2>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>Set Monthly Income</h3>
+
+      <div class="form-row">
+        <input type="number" id="incomeInput" placeholder="Enter income e.g. 800" />
+        <button id="saveIncomeBtn">Save</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>Add Expense</h3>
+
+      <form id="expenseForm">
+        <input type="number" id="amountInput" placeholder="Amount e.g. 5.50" required />
+
+        <select id="categoryInput" required>
+          <option value="">Select category</option>
+          <option>Food</option>
+          <option>Fuel</option>
+          <option>Car</option>
+          <option>Shopping</option>
+          <option>Subscriptions</option>
+          <option>Entertainment</option>
+          <option>Savings</option>
+          <option>Other</option>
+        </select>
+
+        <input type="text" id="noteInput" placeholder="Note e.g. Lunch" />
+
+        <button type="submit">Add Expense</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <h3>Spending History</h3>
+        <button class="clear-btn" id="clearBtn">Clear All</button>
+      </div>
+
+      <div id="expenseList" class="expense-list"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -621,5 +621,24 @@ ${getCurrentExpenses().map((e) => `${e.date} - ${e.category} - ${formatMoney(e.a
     URL.revokeObjectURL(url);
   });
 
+const tabButtons = document.querySelectorAll(".tab-btn");
+const screens = document.querySelectorAll(".screen");
+
+tabButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const targetTab = button.dataset.tab;
+
+    tabButtons.forEach((btn) => btn.classList.remove("active"));
+    screens.forEach((screen) => screen.classList.remove("active"));
+
+    button.classList.add("active");
+    document.getElementById(targetTab).classList.add("active");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  });
+});
   refreshApp();
 });

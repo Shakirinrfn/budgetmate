@@ -356,3 +356,45 @@ button:active {
     font-size: 22px;
   }
 }
+
+.screen {
+  display: none;
+  padding-bottom: 90px;
+}
+
+.screen.active {
+  display: block;
+}
+
+.bottom-nav {
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  width: calc(100% - 28px);
+  max-width: 520px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  padding: 8px;
+  background: rgba(17,28,46,.96);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 22px;
+  box-shadow: 0 18px 45px rgba(0,0,0,.4);
+  backdrop-filter: blur(16px);
+  z-index: 100;
+}
+
+.tab-btn {
+  padding: 11px 6px;
+  border-radius: 15px;
+  background: transparent;
+  color: #9ca8b8;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.tab-btn.active {
+  background: #35d07f;
+  color: #03120a;
+}

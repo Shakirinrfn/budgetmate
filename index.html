@@ -10,9 +10,15 @@
 <body>
   <main class="app">
     <section class="hero">
-      <p class="eyebrow">Personal Budget</p>
+      <p class="eyebrow">Smart Budgeting</p>
       <h1>BudgetMate</h1>
-      <p>Track your income, expenses, and remaining balance.</p>
+      <p>Track expenses, budgets, savings, recurring bills, purchase decisions, and monthly insights.</p>
+    </section>
+
+    <section class="month-bar">
+      <button id="prevMonthBtn" type="button">←</button>
+      <h3 id="monthDisplay">Month</h3>
+      <button id="nextMonthBtn" type="button">→</button>
     </section>
 
     <section class="summary-grid">
@@ -20,12 +26,10 @@
         <span>Income</span>
         <h2 id="incomeDisplay">B$0.00</h2>
       </div>
-
       <div class="card">
         <span>Spent</span>
         <h2 id="spentDisplay">B$0.00</h2>
       </div>
-
       <div class="card balance-card">
         <span>Remaining</span>
         <h2 id="remainingDisplay">B$0.00</h2>
@@ -33,11 +37,19 @@
     </section>
 
     <section class="panel">
-      <h3>Set Monthly Income</h3>
+      <h3>Monthly Progress</h3>
+      <div class="progress-track">
+        <div id="monthlyProgressBar" class="progress-fill"></div>
+      </div>
+      <p id="monthlyProgressText" class="muted">0% of income used</p>
+      <div id="warningBox" class="warning-box hidden"></div>
+    </section>
 
+    <section class="panel">
+      <h3>Set Monthly Income</h3>
       <div class="form-row">
         <input type="number" id="incomeInput" placeholder="Enter income e.g. 800" />
-        <button id="saveIncomeBtn">Save</button>
+        <button id="saveIncomeBtn" type="button">Save</button>
       </div>
     </section>
 
@@ -61,20 +73,141 @@
 
         <input type="text" id="noteInput" placeholder="Note e.g. Lunch" />
 
+        <select id="worthInput">
+          <option value="neutral">Was it worth it?</option>
+          <option value="worth">Worth it</option>
+          <option value="regret">Regret</option>
+        </select>
+
+        <label class="file-box">
+          <span>Add receipt photo</span>
+          <input type="file" id="receiptInput" accept="image/*" />
+        </label>
+
+        <img id="receiptPreview" class="receipt-preview hidden" alt="Receipt preview" />
+
         <button type="submit">Add Expense</button>
       </form>
     </section>
 
     <section class="panel">
+      <h3>Smart Insights</h3>
+      <div id="insightList" class="insight-list"></div>
+    </section>
+
+    <section class="panel">
+      <h3>Should I Buy This?</h3>
+
+      <form id="buyForm">
+        <input type="text" id="buyNameInput" placeholder="Item name e.g. Used gearbox" required />
+        <input type="number" id="buyPriceInput" placeholder="Price e.g. 1200" required />
+
+        <select id="buyNeedInput" required>
+          <option value="">Need score</option>
+          <option value="1">1 - Not needed</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5 - Essential</option>
+        </select>
+
+        <select id="buyUrgencyInput" required>
+          <option value="">Urgency</option>
+          <option value="1">1 - Can wait</option>
+          <option value="2">2</option>
+          <option value="3">3 - Soon</option>
+          <option value="4">4</option>
+          <option value="5">5 - Urgent</option>
+        </select>
+
+        <button type="submit">Calculate Decision</button>
+      </form>
+
+      <div id="buyResult" class="decision-box"></div>
+    </section>
+
+    <section class="panel">
+      <h3>Savings Goal</h3>
+
+      <form id="goalForm">
+        <input type="text" id="goalNameInput" placeholder="Goal name e.g. Emergency Fund" required />
+        <input type="number" id="goalTargetInput" placeholder="Target amount e.g. 1000" required />
+        <input type="number" id="goalSavedInput" placeholder="Currently saved e.g. 250" required />
+        <button type="submit">Save Goal</button>
+      </form>
+
+      <div id="goalBox" class="goal-box"></div>
+    </section>
+
+    <section class="panel">
+      <h3>Recurring Expenses</h3>
+
+      <form id="recurringForm">
+        <input type="text" id="recurringNameInput" placeholder="Name e.g. Netflix" required />
+        <input type="number" id="recurringAmountInput" placeholder="Amount e.g. 12" required />
+
+        <select id="recurringCategoryInput" required>
+          <option value="">Select category</option>
+          <option>Food</option>
+          <option>Fuel</option>
+          <option>Car</option>
+          <option>Shopping</option>
+          <option>Subscriptions</option>
+          <option>Entertainment</option>
+          <option>Savings</option>
+          <option>Other</option>
+        </select>
+
+        <button type="submit">Add Recurring</button>
+      </form>
+
+      <button id="applyRecurringBtn" class="secondary-btn" type="button">Apply Recurring to This Month</button>
+      <div id="recurringList" class="recurring-list"></div>
+    </section>
+
+    <section class="panel">
+      <h3>Category Budgets</h3>
+
+      <form id="budgetForm">
+        <select id="budgetCategoryInput" required>
+          <option value="">Select category</option>
+          <option>Food</option>
+          <option>Fuel</option>
+          <option>Car</option>
+          <option>Shopping</option>
+          <option>Subscriptions</option>
+          <option>Entertainment</option>
+          <option>Savings</option>
+          <option>Other</option>
+        </select>
+
+        <input type="number" id="budgetAmountInput" placeholder="Budget amount e.g. 200" required />
+        <button type="submit">Set Budget</button>
+      </form>
+
+      <div id="categoryBudgetList" class="category-budget-list"></div>
+    </section>
+
+    <section class="panel">
+      <h3>Spending Breakdown</h3>
+      <div id="breakdownList" class="breakdown-list"></div>
+    </section>
+
+    <section class="panel">
       <div class="section-head">
         <h3>Spending History</h3>
-        <button class="clear-btn" id="clearBtn">Clear All</button>
+        <button class="clear-btn" id="clearMonthBtn" type="button">Clear Month</button>
       </div>
 
       <div id="expenseList" class="expense-list"></div>
     </section>
+
+    <section class="panel">
+      <h3>Monthly Report</h3>
+      <button id="exportReportBtn" type="button">Export Smart Report</button>
+    </section>
   </main>
 
-  <script src="script.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
